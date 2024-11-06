@@ -1,0 +1,28 @@
+/* CSS for Sidebar */
+.sidebar {
+    background-color: #003366 !important; /* Dark blue for the sidebar */
+}
+
+/* Additional styles to ensure the entire sidebar is affected */
+.main-sidebar {
+    background-color: #003366 !important; /* Dark blue for the sidebar */
+}
+
+.sidebar .nav-link {
+    background-color: transparent !important; /* Remove default background */
+    color: #ffffff; /* White text */
+}
+
+.sidebar .nav-link.active {
+    background-color: rgba(255, 255, 255, 0.1) !important; /* Background for active menu */
+}
+
+/* Styles specifically for the Logout menu */
+.logout-link {
+    background-color: #dc3545; /* Red background for Logout */
+    color: #ffffff; /* White text */
+}
+
+.logout-link:hover {
+    background-color: #c82333; /* Darker red on hover */
+}
