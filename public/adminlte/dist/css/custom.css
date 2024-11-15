@@ -26,3 +26,11 @@
 .logout-link:hover {
     background-color: #c82333; /* Darker red on hover */
 }
+
+#table-jenis-kegiatan th:nth-child(3) {
+    text-align: center;
+}
+
+.menu-open > .nav-treeview {
+    display: block !important;
+}
