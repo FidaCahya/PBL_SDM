@@ -29,8 +29,18 @@ use App\Http\Controllers\DashboardController;
 //     return view('welcome');
 // });
 // Route::get('/', [WelcomeController::class, 'index']);
-Route::get('login', [AuthController::class, 'login'])->name('login');
+Route::pattern('id','[0-9]+'); // artinya ketikaada parameter {id}, maka harus berupa angka
 
+Route::get('login', [AuthController::class, 'login'])->name('login');
+Route::post('login', [AuthController::class, 'postlogin']);
+Route::get('logout', [AuthController::class, 'logout'])->middleware('auth');
+
+Route::middleware(['auth'])->group(function(){
+Route::get('/profile', [UserController::class, 'showProfile'])->name('profile');
+
+Route::post('/profile/upload', [UserController::class, 'uploadProfilePicture'])->name('profile.upload');
+Route::put('/profile/update', [UserController::class, 'updateProfile'])->name('profile.update');
+Route::post('/profile/change-password', [UserController::class, 'changePassword'])->name('profile.change-password');
 
 Route::get('/jeniskegiatan', [JenisKegiatanController::class, 'index']);
 
@@ -56,7 +66,8 @@ Route::post('/user/import_ajax', [UserController::class, 'import_ajax']);
 Route::get('/user/export_excel', [UserController::class, 'export_excel']); //export excel
 Route::get('/user/export_pdf', [UserController::class, 'export_pdf']);
 
-Route::get('/level', [LevelController::class, 'index']);
+Route::middleware(['authorize:ADM'])->group(function(){
+        Route::get('/level', [LevelController::class, 'index']);
         //Route::get('/', [LevelController::class, 'index']);          //menampilkan halaman awal user
         Route::post('/level/list', [LevelController::class, 'list']);      //menampilkan data user dalam bentuk json untuk datatables
         Route::get('/level/create', [LevelController::class, 'create']);   //menampilkan hal form tambah user 
@@ -76,7 +87,7 @@ Route::get('/level', [LevelController::class, 'index']);
         Route::post('/level/import_ajax', [LevelController::class, 'import_ajax']);
         Route::get('/level/export_excel', [LevelController::class, 'export_excel']); //export excel
         Route::get('/level/export_pdf', [LevelController::class, 'export_pdf']);
-
+});
         Route::get('/kegiatan', [KegiatanController::class, 'index']);
         Route::post('/kegiatan/list', [KegiatanController::class, 'list']);
         Route::get('/kegiatan/create', [KegiatanController::class, 'create']);
@@ -197,5 +208,5 @@ Route::get('/level', [LevelController::class, 'index']);
         Route::post('/progresskegiatan/import_ajax', [ProgressKegiatanController::class, 'import_ajax']);
         Route::get('/progresskegiatan/export_excel', [ProgressKegiatanController::class, 'export_excel']); // export to excel
         Route::get('/progresskegiatan/export_pdf', [ProgressKegiatanController::class, 'export_pdf']); // export to pdf
-
+});
 
