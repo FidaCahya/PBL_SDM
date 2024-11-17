@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\LevelModel;
 use App\Models\UserModel;
+use App\Models\ProfileDosenModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -355,25 +356,36 @@ class UserController extends Controller
                         'title' => 'Profile',
                         'list' => ['Home']
                     ];
-                    return view('profile.profile', compact('user', 'activeMenu', 'breadcrumb'));
+                    
+                    // Ambil profil dosen berdasarkan user_id
+                    $profileDosen = ProfileDosenModel::where('user_id', $user->user_id)->first();
+
+                    // Pastikan profil dosen ditemukan
+                    if (!$profileDosen) {
+                        return redirect()->route('profile')->with('error', 'Profile dosen tidak ditemukan.');
+                    }
+
+                    // Kirimkan variabel ke view dengan nama yang konsisten
+                    return view('profile.index', compact('user', 'activeMenu', 'breadcrumb', 'profileDosen'));
                 }
+
                 public function uploadProfilePicture(Request $request)
                 {
                     $request->validate([
-                        'avatar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+                        'profile_picture' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
                     ]);
                     
                     $user = Auth::user();
 
-                    // Delete old avatar if exists
-                    if ($user->avatar) {
-                        Storage::delete($user->avatar);
+                    // Delete old profile_picture if exists
+                    if ($user->profile_picture) {
+                        Storage::delete($user->profile_picture);
                     }
 
-                    $path = $request->file('avatar')->store('avatar');
+                    $path = $request->file('profile_picture')->store('profile_picture');
 
                     // Update path in the database
-                    $user->avatar = $path;
+                    $user->profile_picture = $path;
                     $user->save();
                     
                     return redirect()->route('profile')->with('success', 'Profile picture updated successfully.');
@@ -381,23 +393,56 @@ class UserController extends Controller
 
                 public function updateProfile(Request $request)
                 {
+                    // Validasi input
                     $request->validate([
                         'username' => 'required|string|min:3|unique:m_user,username,' . Auth::id() . ',user_id',
                         'nama'     => 'required|string|max:100',
+                        'nip' => 'required|string|max:20',
+                        'jurusan' => 'required|string|max:20',
+                        'alamat' => 'required|string|max:255',
+                        'email' => 'required|string|max:255',
+                        'no_telepon' => 'required|string|max:15',
                     ]);
 
+                    // Ambil pengguna yang sedang login
                     $user = Auth::user();
+
+                    // Perbarui data pengguna di tabel m_user
                     $user->update([
                         'username' => $request->username,
                         'nama'     => $request->nama,
                     ]);
 
-                    return redirect()->route('profile')->with('success', 'Profile updated successfully.');
+                    // Ambil profil dosen berdasarkan user_id
+                    $profileDosen = ProfileDosenModel::where('user_id', $user->user_id)->first();
+
+                    // Pastikan profil dosen ada
+                    if ($profileDosen) {
+                        // Perbarui data profil dosen di tabel t_profile
+                        $updated = $profileDosen->update([
+                            'nip' => $request->nip,
+                            'jurusan' => $request->jurusan,
+                            'alamat' => $request->alamat,
+                            'email' => $request->email,
+                            'no_telepon' => $request->no_telepon,
+                        ]);
+
+                        // Periksa apakah update berhasil
+                        if ($updated) {
+                            return redirect()->route('profile')->with('success', 'Profile updated successfully.');
+                        } else {
+                            return redirect()->route('profile')->with('error', 'Failed to update profile.');
+                        }
+                    } else {
+                        // Jika profil dosen tidak ada
+                        return redirect()->route('profile')->with('error', 'Profile dosen tidak ditemukan.');
+                    }
                 }
 
                 // Change user password
                 public function changePassword(Request $request)
                 {
+                  
                     $request->validate([
                         'password' => 'required|confirmed|min:6',
                     ]);

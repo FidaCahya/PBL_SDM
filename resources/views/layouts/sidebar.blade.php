@@ -1,10 +1,29 @@
 <!-- Sidebar -->
 <div class="sidebar">
-    <!-- Profile Section -->
-    <div class="user-profile text-center mt-3 mb-3">
-        <img src="{{ asset('adminlte/dist/img/profile-picture.jpg') }}" alt="Profile Picture" class="img-circle elevation-2" style="width: 50px; height: 50px;">
-        <p class="user-name" style="color: #ffffff; font-weight: bold;">Nama Pengguna</p>
+    <div class="sidebar">
+        <div class="user-profile text-center mt-3 mb-3">
+            @if (Auth::user()->profile_picture) 
+                <img src="{{ asset('storage/' . Auth::user()->profile_picture) }}"  
+                    alt="User profile_picture"  
+                    class="img-circle"> 
+            @else
+                <i class="fas fa-user-circle" style="font-size: 128px; color: #ccc;"></i>
+            @endif 
+            <p class="user-name" style="color: #ffffff; font-weight: bold;">{{ Auth::user()->nama  }}
+            </p>
+            <p class="user-name" style="color: #ffffff; font-weight: light;">{{ Auth::user()->level->level_nama  }}</p>
+            </p>
+        </div>
     </div>
+    
+    <ul class="nav nav-pills nav-sidebar flex-column">
+        <li class="nav-item">
+            <a href="{{ route('profile') }}" class="nav-link {{ $activeMenu == 'profile' ? 'active' : '' }}">
+                <i class="nav-icon fas fa-user"></i>
+                <p>Profile</p>
+            </a>
+        </li>
+    </ul>
 
     <!-- Sidebar Menu -->
     <nav class="mt-2">
@@ -138,3 +157,21 @@
         submenu.style.display = submenu.style.display === 'none' ? 'block' : 'none';
     }
 </script>
+
+<style>
+    .img-circle {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%; 
+        object-fit: cover; 
+        display: inline-block;
+        border: 3px solid #fff; 
+    }
+    .user-name {
+    color: #ffffff;
+    font-weight: normal;
+    margin: 0;
+    }
+</style>
+
+
